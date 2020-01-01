@@ -1,1 +1,3 @@
 # advent-of-kotlin
+
+Learning kotlin ...
