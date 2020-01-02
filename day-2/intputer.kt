@@ -24,7 +24,7 @@ class Intputer(input: String) {
     We should probably come up with a better way to conver the tape
     into something that is easier to process and build
     */
-    fun process_tape(): Int {
+    fun process_tape() {
         var tape_index: Int = 0
         while (tape.get(tape_index) != 99) {
             when(tape.get(tape_index)) {
@@ -32,7 +32,6 @@ class Intputer(input: String) {
                 2 -> tape_index = opcode2(tape_index)
             }
         }
-        return tape.get(0)
     }
 
     /*

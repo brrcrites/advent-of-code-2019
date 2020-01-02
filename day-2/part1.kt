@@ -12,7 +12,8 @@ fun main(args: Array<String>) {
     println("Setting position 1 to 12 and 2 to 2")
     intputer.tape.set(1, 12)
     intputer.tape.set(2, 2)
+    intputer.process_tape()
 
-    println("Value at position 0 after processing: ${intputer.process_tape()}")
+    println("Value at position 0 after processing: ${intputer.tape.get(0)}")
 }
 
