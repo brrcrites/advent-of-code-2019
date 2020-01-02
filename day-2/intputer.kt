@@ -3,10 +3,13 @@ package aoc.intputer
 
 class Intputer(input: String) {
     var tape: MutableList<Int>
+    var debug: Boolean = false
 
     init {
         tape = input.trim().split(",").map{ it.toInt() }.toMutableList()
     }
+
+    val original_tape: List<Int> = tape.toList()
 
     /*
     We should update this to print each line based on its split rules
@@ -20,16 +23,21 @@ class Intputer(input: String) {
         }
     }
 
+    fun reset_tape() {
+        tape = original_tape.toMutableList()
+    }
+
     /*
     We should probably come up with a better way to conver the tape
     into something that is easier to process and build
     */
     fun process_tape() {
         var tape_index: Int = 0
-        while (tape.get(tape_index) != 99) {
-            when(tape.get(tape_index)) {
+        while (tape.get(tape_index) != 99 && tape_index < tape.size) {
+            when (tape.get(tape_index)) {
                 1 -> tape_index = opcode1(tape_index)
                 2 -> tape_index = opcode2(tape_index)
+                else -> println("Encountered invalid opcode ${tape.get(tape_index)}")
             }
         }
     }
@@ -41,13 +49,17 @@ class Intputer(input: String) {
     more easily allows for direct and indirect access to the tape
     */
     fun opcode1(index: Int): Int {
-        println("Executing Opcode 1: ${tape.get(index + 1)} + ${tape.get(index + 2)} -> [${index + 3}]")
+        if(debug) {
+            println("Executing Opcode 1: ${tape.get(index + 1)} + ${tape.get(index + 2)} -> [${index + 3}]")
+        }
         tape.set(tape.get(index + 3), tape.get(tape.get(index + 1)) + tape.get(tape.get(index + 2)) )
         return index + 4
     }
 
     fun opcode2(index: Int): Int {
-        println("Executing Opcode 2: ${tape.get(index + 1)} * ${tape.get(index + 2)} -> [${index + 3}]")
+        if(debug) {
+            println("Executing Opcode 2: ${tape.get(index + 1)} * ${tape.get(index + 2)} -> [${index + 3}]")
+        }
         tape.set(tape.get(index + 3), tape.get(tape.get(index + 1)) * tape.get(tape.get(index + 2)) )
         return index + 4
     }
