@@ -5,6 +5,7 @@ data class OpWord(var opcode: Int, var modes: MutableList<Int>)
 
 class Intputer(input: String) {
     var tape: MutableList<Int>
+    // TODO(brrcrites): Look into loggers for kotlin and replace this with a logger
     var debug: Boolean = false
 
     init {
@@ -48,6 +49,9 @@ class Intputer(input: String) {
     fun process_tape() {
         var tape_index: Int = 0
         tape_exec@ while (tape_index >= 0 && tape_index < tape.size) {
+            if (debug) {
+                println("@${tape_index}")
+            }
             val (opcode, mode_array) = process_opword(tape.get(tape_index))
             if (opcode == 99) { break }
             when (opcode) {
@@ -55,6 +59,10 @@ class Intputer(input: String) {
                 2 -> tape_index = opcode2(mode_array, tape_index)
                 3 -> tape_index = opcode3(mode_array, tape_index)
                 4 -> tape_index = opcode4(mode_array, tape_index)
+                5 -> tape_index = opcode5(mode_array, tape_index)
+                6 -> tape_index = opcode6(mode_array, tape_index)
+                7 -> tape_index = opcode7(mode_array, tape_index)
+                8 -> tape_index = opcode8(mode_array, tape_index)
                 else -> break@tape_exec
             }
         }
@@ -133,5 +141,129 @@ class Intputer(input: String) {
             else -> return -1
         }
         return index + 2
+    }
+
+    fun opcode5(modes: List<Int>, index: Int): Int {
+        if (debug) {
+            println("Executing Opcode 5: jump-if-true")
+        }
+
+        var ip: Int
+        when (modes.get(1)) {
+            0 -> ip = tape.get(tape.get(index + 2))
+            1 -> ip = tape.get(index + 2)
+            else -> return -1
+        }
+        var comp: Int
+        when (modes.get(0)) {
+            0 -> comp = tape.get(tape.get(index + 1))
+            1 -> comp = tape.get(index + 1)
+            else -> return -1
+        }
+        if (comp != 0) {
+            if (debug) {
+                println("Value ${comp} is true, jumping to ${ip}")
+            }
+            return ip
+        }
+        if (debug) {
+            println("Value ${comp} is false, continuing to ${index + 3}")
+        }
+        return index + 3
+    }
+
+    fun opcode6(modes: List<Int>, index: Int): Int {
+        if (debug) {
+            println("Executing Opcode 6: jump-if-false")
+        }
+
+        var ip: Int
+        when (modes.get(1)) {
+            0 -> ip = tape.get(tape.get(index + 2))
+            1 -> ip = tape.get(index + 2)
+            else -> return -1
+        }
+        var comp: Int
+        when (modes.get(0)) {
+            0 -> comp = tape.get(tape.get(index + 1))
+            1 -> comp = tape.get(index + 1)
+            else -> return -1
+        }
+        if (comp == 0) {
+            if (debug) {
+                println("Value ${comp} is false, jumping to ${ip}")
+            }
+            return ip
+        }
+        if (debug) {
+            println("Value ${comp} is true, continuing to ${index + 3}")
+        }
+        return index + 3
+    }
+
+    fun opcode7(modes: List<Int>, index: Int): Int {
+        if (debug) {
+            println("Executing Opcode 7: less than")
+        }
+
+        var op1: Int
+        when (modes.get(0)) {
+            0 -> op1 = tape.get(tape.get(index + 1))
+            1 -> op1 = tape.get(index + 1)
+            else -> return -1
+        }
+        var op2: Int
+        when (modes.get(1)) {
+            0 -> op2 = tape.get(tape.get(index + 2))
+            1 -> op2 = tape.get(index + 2)
+            else -> return -1
+        }
+        if (op1 < op2) {
+            if (debug) {
+                println("Value of ${op1} is less than value of ${op2}, setting ${tape.get(tape.get(index + 3))} to 1")
+            }
+            tape.set(tape.get(index + 3), 1)
+        } else {
+            if (debug) {
+                println("Value of ${op1} is not less than value of ${op2}, setting ${tape.get(tape.get(index + 3))} to 0")
+            }
+            tape.set(tape.get(index + 3), 0)
+        }
+        
+        return index + 4
+    }
+
+    fun opcode8(modes: List<Int>, index: Int): Int {
+        if (debug) {
+            println("Executing Opcode 8: equals")
+        }
+
+        // TODO(brrcrites): The setting of these immediate vs. positional values feels very
+        // non-DRY at this point and is probably in need of a refactor
+        var op1: Int
+        when (modes.get(0)) {
+            0 -> op1 = tape.get(tape.get(index + 1))
+            1 -> op1 = tape.get(index + 1)
+            else -> return -1
+        }
+        var op2: Int
+        when (modes.get(1)) {
+            0 -> op2 = tape.get(tape.get(index + 2))
+            1 -> op2 = tape.get(index + 2)
+            else -> return -1
+        }
+        if (op1 == op2) {
+            if (debug) {
+                println("Value of ${op1} matches value of ${op2}, setting ${tape.get(tape.get(index + 3))} to 1")
+            }
+            tape.set(tape.get(index + 3), 1)
+        } else {
+            if (debug) {
+                println("Value of ${op1} does not match value of ${op2}, setting ${tape.get(tape.get(index + 3))} to 0")
+            }
+            tape.set(tape.get(index + 3), 0)
+        }
+
+        return index + 4
     }
 }
