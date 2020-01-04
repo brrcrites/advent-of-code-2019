@@ -47,7 +47,7 @@ class Intputer(input: String) {
     // We should probably come up with a better way to conver the tape into something that is easier to process and build
     fun process_tape() {
         var tape_index: Int = 0
-        tape_exec@ while (tape_index < tape.size) {
+        tape_exec@ while (tape_index >= 0 && tape_index < tape.size) {
             val (opcode, mode_array) = process_opword(tape.get(tape_index))
             if (opcode == 99) { break }
             when (opcode) {
@@ -71,19 +71,20 @@ class Intputer(input: String) {
         if(debug) {
             println("Executing Opcode 1: Addition with modes ${modes}")
         }
-        var op1: Int? = null
-        var op2: Int? = null
-        // TODO(brrcrites): consider a more elegant way to do this, even if its just functionalizing the immediate vs. positional gets
-        if (modes.get(0) == 0) {
-            op1 = tape.get(tape.get(index + 1))
-        } else {
-            op1 = tape.get(index + 1)
+
+        var op1: Int
+        when (modes.get(0)) {
+            0 -> op1 = tape.get(tape.get(index + 1))
+            1 -> op1 = tape.get(index + 1)
+            else -> return -1
         }
-        if (modes.get(1) == 0) {
-            op2 = tape.get(tape.get(index + 2))
-        } else {
-            op2 = tape.get(index + 2)
+        var op2: Int
+        when (modes.get(1)) {
+            0 -> op2 = tape.get(tape.get(index + 2))
+            1 -> op2 = tape.get(index + 2)
+            else -> return -1
         }
+
         tape.set(tape.get(index + 3), op1 + op2)
         return index + 4
     }
@@ -92,18 +93,20 @@ class Intputer(input: String) {
         if(debug) {
             println("Executing Opcode 2: Multiplication with modes ${modes}")
         }
-        var op1: Int? = null
-        var op2: Int? = null
-        if (modes.get(0) == 0) {
-            op1 = tape.get(tape.get(index + 1))
-        } else {
-            op1 = tape.get(index + 1)
+
+        var op1: Int
+        when (modes.get(0)) {
+            0 -> op1 = tape.get(tape.get(index + 1))
+            1 -> op1 = tape.get(index + 1)
+            else -> return -1
         }
-        if (modes.get(1) == 0) {
-            op2 = tape.get(tape.get(index + 2))
-        } else {
-            op2 = tape.get(index + 2)
+        var op2: Int
+        when (modes.get(1)) {
+            0 -> op2 = tape.get(tape.get(index + 2))
+            1 -> op2 = tape.get(index + 2)
+            else -> return -1
         }
+
         tape.set(tape.get(index + 3), op1 * op2)
         return index + 4
     }
@@ -112,20 +115,22 @@ class Intputer(input: String) {
         if(debug) {
             println("Executing Opcode 3: saving value to position ${tape.get(index+1)}")
         }
+
         print("Input: ")
         val user_input = readLine()!!.toInt()
+
         tape.set(tape.get(index + 1), user_input)
         return index + 2
     }
 
     fun opcode4(modes: List<Int>, index: Int): Int {
         if(debug) {
-            println("Executing Opcode 4: outputting value")
+            println("Executing Opcode 4: outputting value with modes ${modes}")
         }
-        if (modes.get(0) == 0) {
-            println("Output: ${tape.get(tape.get(index + 1))}")
-        } else {
-            println("Output: ${tape.get(index + 1)}")
+        when (modes.get(0)) {
+            0 -> println("Output: ${tape.get(tape.get(index + 1))}")
+            1 -> println("Output: ${tape.get(index + 1)}")
+            else -> return -1
         }
         return index + 2
     }
